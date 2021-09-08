@@ -1,0 +1,6 @@
+telegram:
+  token: <YOUR_TELEGRAM_TOKEN>
+  chat_id: <YOUR_TELEGRAM_CHAT_ID>
+server:
+  port: 8080
+  
