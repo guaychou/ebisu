@@ -71,6 +71,6 @@ $ ebisu --config.ebisu="<PATH_TO_EBISU_CONFIG>"
 #### Using prebuilt docker image
 
 ```shell
-$ docker run -it -p8080:8080 -v "<PATH_TO_EBISU_CONFIG>":/app/config/ebisu.yaml -v  -d lordchou/ebisu:v0.1.1 \
-  ./ebisu --config.ebisu=./config/ebisu.yaml --config.log=./config/log4rs.yaml 
+$ docker run -it -p8080:8080 -v "<PATH_TO_EBISU_CONFIG>":/app/config/ebisu.yaml -v -d lordchou/ebisu:v0.2.0 \
+  ./ebisu --config.ebisu=./config/ebisu.yaml
 ```
