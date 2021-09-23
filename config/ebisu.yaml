@@ -3,4 +3,7 @@ telegram:
   chat_id: <YOUR_TELEGRAM_CHAT_ID>
 server:
   port: 8080
-  
+  buffer: 10
+  concurrency_limit: 100
+  rate_limit: 100
+  limit_timeout: 10s

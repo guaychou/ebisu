@@ -1,6 +1,6 @@
 [package]
 name = "ebisu"
-version = "0.2.0-rc1"
+version = "0.2.0"
 edition = "2018"
 
 [lib]
@@ -21,9 +21,10 @@ http-api-problem = { version ="0.50.2", features = ["hyper"]}
 validator = { version = "0.12", features = ["derive"] }
 tracing-subscriber = "0.2"
 tracing = "0.1"
-axum = "0.2"
+axum = "0.2.5"
 tower-http = { version = "0.1", features = ["trace"] }
-tower = { version = "0.4", features = ["util", "timeout"] }
+tower = { version = "0.4", features = ["full"] }
+humantime-serde = "1.0.1"
 
 [profile.release]
 opt-level = "z"

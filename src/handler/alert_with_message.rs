@@ -22,12 +22,12 @@ pub async fn alert_with_message(
     req.validate()?;
     let data = telegram
         .send_alert(
-    req.service
+            req.service
                 .replace(|c: char| !c.is_alphanumeric() && !c.is_whitespace(), ""),
-    Some(
+            Some(
                 req.message
                     .replace(|c: char| !c.is_alphanumeric() && !c.is_whitespace(), ""),
-                ),
+            ),
         )
         .await?;
     Ok(json!(data).into())

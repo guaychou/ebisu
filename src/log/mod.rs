@@ -1,10 +1,14 @@
+use tracing_subscriber::EnvFilter;
 use {env, figlet_rs::FIGfont, log::info};
 
 pub fn log_init() {
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "ebisu=debug,tower_http=debug")
     }
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .pretty()
+        .init();
     print_banner();
 }
 

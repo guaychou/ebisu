@@ -1,4 +1,5 @@
 use {getset::Getters, log::info, serde::Deserialize};
+use std::time::Duration;
 
 #[derive(Deserialize, Getters, Clone)]
 pub struct TelegramConfig {
@@ -8,16 +9,20 @@ pub struct TelegramConfig {
     token: String,
 }
 
-#[derive(Deserialize, Getters, Clone)]
-pub struct DiscordConfig {
-    #[getset(get = "pub with_prefix")]
-    webhook_url: String,
-}
 
 #[derive(Deserialize, Getters)]
 pub struct ServerConfig {
     #[getset(get = "pub with_prefix")]
     port: u16,
+    #[getset(get = "pub with_prefix")]
+    buffer: usize,
+    #[getset(get = "pub with_prefix")]
+    concurrency_limit: usize,
+    #[getset(get = "pub with_prefix")]
+    rate_limit: u64,
+    #[getset(get = "pub with_prefix")]
+    #[serde(with = "humantime_serde")]
+    limit_timeout: Duration
 }
 
 #[derive(Deserialize, Getters)]
@@ -28,7 +33,7 @@ pub struct Config {
 }
 
 fn default_server_config() -> ServerConfig {
-    ServerConfig { port: 8080 }
+    ServerConfig { port: 8080, buffer: 10, concurrency_limit: 5, rate_limit: 5,  limit_timeout: Duration::from_secs(10)}
 }
 
 pub fn read_config(config_path: &str) -> Config {

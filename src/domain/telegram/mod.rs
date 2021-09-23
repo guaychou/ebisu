@@ -8,6 +8,7 @@ use {
     serde::{Deserialize, Serialize},
     serde_json::json,
     tokio::time::Duration,
+    crate::error::AppError
 };
 
 #[derive(Clone)]
@@ -69,7 +70,7 @@ impl Telegram {
         &self,
         service: String,
         message: Option<String>,
-    ) -> Result<TelegramResponseOk, TelegramResponseError> {
+    ) -> Result<TelegramResponseOk, AppError> {
         let message = message.unwrap_or_else(|| String::from("Restarted, Please check"));
         let text = format!(
             "***ALERT 🔥 🔥 🔥***\n\n***Service***    : {}\n***Message*** : {}",
@@ -86,14 +87,11 @@ impl Telegram {
             .post(self.bot_url.to_string())
             .json(&json!(message))
             .send()
-            .await
-            .expect("Cannot send request to Telegram")
+            .await?
             .json::<TelegramResponse>()
-            .await
-            .expect("Parse data failed")
-        {
-            TelegramResponse::Ok(data) => return Ok(data),
-            TelegramResponse::Err(err) => return Err(err),
-        }
+            .await? {
+                TelegramResponse::Ok(data) => return Ok(data),
+                TelegramResponse::Err(err) => return Err(err.into()),
+            }
     }
 }
