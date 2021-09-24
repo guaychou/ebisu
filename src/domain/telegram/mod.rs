@@ -2,15 +2,14 @@ pub mod message;
 
 use {
     crate::configuration::TelegramConfig,
+    crate::error::AppError,
     getset::Getters,
     message::Message,
     reqwest::Client,
     serde::{Deserialize, Serialize},
     serde_json::json,
     tokio::time::Duration,
-    crate::error::AppError
 };
-
 #[derive(Clone)]
 pub struct Telegram {
     config: TelegramConfig,
@@ -49,7 +48,7 @@ impl Telegram {
     pub fn new(config: TelegramConfig) -> Self {
         static APP_USER_AGENT: &str =
             concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
-        let timeout_duration = Duration::new(10, 0);
+        let timeout_duration = Duration::new(5, 0);
         let client = reqwest::Client::builder()
             .user_agent(APP_USER_AGENT)
             .connect_timeout(timeout_duration)
@@ -89,9 +88,10 @@ impl Telegram {
             .send()
             .await?
             .json::<TelegramResponse>()
-            .await? {
-                TelegramResponse::Ok(data) => return Ok(data),
-                TelegramResponse::Err(err) => return Err(err.into()),
-            }
+            .await?
+        {
+            TelegramResponse::Ok(data) => return Ok(data),
+            TelegramResponse::Err(err) => return Err(err.into()),
+        }
     }
 }

@@ -6,4 +6,5 @@ server:
   buffer: 10
   concurrency_limit: 100
   rate_limit: 100
-  limit_timeout: 10s
+  limiter_timeout: 10s
+  timeout: 10s
