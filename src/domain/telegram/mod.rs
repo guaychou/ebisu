@@ -9,8 +9,11 @@ use {
     serde::{Deserialize, Serialize},
     serde_json::json,
     tokio::time::Duration,
+    tracing::instrument,
 };
-#[derive(Clone)]
+
+
+#[derive(Debug, Clone)]
 pub struct Telegram {
     config: TelegramConfig,
     client: Client,
@@ -45,7 +48,7 @@ pub enum TelegramResponse {
 }
 
 impl Telegram {
-    pub fn new(config: TelegramConfig) -> Self {
+    pub fn new(config: TelegramConfig) -> Telegram {
         static APP_USER_AGENT: &str =
             concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
         let timeout_duration = Duration::new(5, 0);
@@ -59,12 +62,14 @@ impl Telegram {
             "https://api.telegram.org/bot{}/sendMessage",
             config.get_token()
         );
-        return Self {
+        Self {
             config: config,
             client: client,
             bot_url: bot_url,
-        };
+        }
     }
+
+    #[instrument(name = "send_alert")]
     pub async fn send_alert(
         &self,
         service: String,

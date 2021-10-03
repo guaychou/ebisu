@@ -1,11 +1,14 @@
 use tracing_subscriber::EnvFilter;
+use tracing_subscriber::fmt::format::FmtSpan;
 use {env, figlet_rs::FIGfont, log::info};
 
 pub fn log_init() {
     if std::env::var("RUST_LOG").is_err() {
-        std::env::set_var("RUST_LOG", "ebisu=debug,tower_http=debug")
+        std::env::set_var("RUST_LOG", "ebisu=info")
     }
     tracing_subscriber::fmt()
+        .with_thread_ids(true)
+        .with_span_events(FmtSpan::FULL)
         .with_env_filter(EnvFilter::from_default_env())
         .pretty()
         .init();

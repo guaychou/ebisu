@@ -38,6 +38,7 @@ impl From<RequestError> for AppError {
     }
 }
 
+
 impl IntoResponse for AppError {
     type Body = Full<Bytes>;
     type BodyError = Infallible;

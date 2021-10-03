@@ -1,7 +1,7 @@
 use std::time::Duration;
 use {getset::Getters, log::info, serde::Deserialize};
 
-#[derive(Deserialize, Getters, Clone)]
+#[derive(Debug, Deserialize, Getters, Clone)]
 pub struct TelegramConfig {
     #[getset(get = "pub with_prefix")]
     chat_id: String,

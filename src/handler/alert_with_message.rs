@@ -5,6 +5,7 @@ use log::debug;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use validator::*;
+use tracing::instrument;
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct RequestBody {
@@ -14,6 +15,7 @@ pub struct RequestBody {
     message: String,
 }
 
+#[instrument(name = "alert_message_handler" skip(telegram))]
 pub async fn alert_with_message(
     Json(req): Json<RequestBody>,
     Extension(telegram): Extension<Telegram>,
