@@ -12,7 +12,6 @@ use {
     tracing::instrument,
 };
 
-
 #[derive(Debug, Clone)]
 pub struct Telegram {
     config: TelegramConfig,

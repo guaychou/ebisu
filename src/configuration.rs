@@ -28,6 +28,7 @@ pub struct ServerConfig {
     timeout: Duration,
 }
 
+
 #[derive(Deserialize, Getters)]
 pub struct Config {
     pub telegram: TelegramConfig,
@@ -42,7 +43,7 @@ fn default_server_config() -> ServerConfig {
         concurrency_limit: 5,
         rate_limit: 5,
         limiter_timeout: Duration::from_secs(10),
-        timeout: Duration::from_secs(10)
+        timeout: Duration::from_secs(10),
     }
 }
 

@@ -3,8 +3,8 @@ use crate::error::AppError;
 use axum::{extract::Extension, Json};
 use serde::Deserialize;
 use serde_json::{json, Value};
-use validator::*;
 use tracing::instrument;
+use validator::*;
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct RequestBody {

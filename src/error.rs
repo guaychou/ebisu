@@ -1,5 +1,6 @@
 use std::convert::Infallible;
 
+use crate::domain::telegram::TelegramResponseError;
 use axum::{
     body::{Bytes, Full},
     http::Response,
@@ -7,7 +8,6 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use crate::domain::telegram::TelegramResponseError;
 use reqwest::Error as RequestError;
 use serde_json::json;
 use tower::BoxError;
@@ -38,7 +38,6 @@ impl From<RequestError> for AppError {
     }
 }
 
-
 impl IntoResponse for AppError {
     type Body = Full<Bytes>;
     type BodyError = Infallible;
@@ -50,10 +49,10 @@ impl IntoResponse for AppError {
                 StatusCode::from_u16(*e.get_error_code()).unwrap_or_default(),
                 json!(e),
             ),
-            AppError::RequestError(_) => { 
-                (StatusCode::INTERNAL_SERVER_ERROR, json!("Request to telegram api is failed.")) 
-            
-            },
+            AppError::RequestError(_) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                json!("Request to telegram api is failed."),
+            ),
         };
         let body = Json(json!({
             "code" : status.as_u16(),

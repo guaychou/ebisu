@@ -1,17 +1,25 @@
-use tracing_subscriber::EnvFilter;
-use tracing_subscriber::fmt::format::FmtSpan;
+use tracing::subscriber::set_global_default;
+use tracing_log::LogTracer;
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
 use {env, figlet_rs::FIGfont, log::info};
 
 pub fn log_init() {
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "ebisu=info")
     }
-    tracing_subscriber::fmt()
-        .with_thread_ids(true)
-        .with_span_events(FmtSpan::FULL)
-        .with_env_filter(EnvFilter::from_default_env())
-        .compact()
-        .init();
+    let jaeger_address =  std::env::var("JAEGER_ADDRESS").unwrap_or( String::from("localhost:6831"));
+    let tracer = opentelemetry_jaeger::new_pipeline()
+        .with_service_name(env!("CARGO_PKG_NAME"))
+        .with_agent_endpoint(jaeger_address)
+        .install_batch(opentelemetry::runtime::Tokio)
+        .unwrap();
+    let opentelemetry = tracing_opentelemetry::layer().with_tracer(tracer);
+    let collector = Registry::default()
+        .with(EnvFilter::from_default_env())
+        .with(tracing_subscriber::fmt::layer())
+        .with(opentelemetry);
+    LogTracer::init().expect("Failed to set logger");
+    set_global_default(collector).expect("Failed to set subscriber");
     print_banner();
 }
 
