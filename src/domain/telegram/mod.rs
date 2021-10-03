@@ -69,7 +69,7 @@ impl Telegram {
         }
     }
 
-    #[instrument(name = "send_alert")]
+    #[instrument(name = "send_alert" skip(self))]
     pub async fn send_alert(
         &self,
         service: String,
