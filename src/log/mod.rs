@@ -10,7 +10,7 @@ pub fn log_init() {
         .with_thread_ids(true)
         .with_span_events(FmtSpan::FULL)
         .with_env_filter(EnvFilter::from_default_env())
-        .pretty()
+        .compact()
         .init();
     print_banner();
 }
