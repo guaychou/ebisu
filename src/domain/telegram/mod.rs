@@ -77,8 +77,10 @@ impl Telegram {
         let message = message.unwrap_or_else(|| String::from("Restarted, Please check"));
         let text = format!(
             "***ALERT 🔥 🔥 🔥***\n\n***Service***    : {}\n***Message*** : {}",
-            service, message
+            message_preprocessing(service),
+            message_preprocessing(message)
         );
+
         let message: Message = Message {
             chat_id: self.config.get_chat_id().to_string(),
             text: text,
@@ -98,4 +100,16 @@ impl Telegram {
             TelegramResponse::Err(err) => return Err(err.into()),
         }
     }
+}
+
+fn message_preprocessing(data: String) -> String {
+    let mut res = String::from("");
+    for i in data.chars() {
+        if !i.is_alphanumeric() && !i.is_whitespace() {
+            res.push_str(format!("\\{}", i).as_str())
+        } else {
+            res.push(i)
+        }
+    }
+    return res;
 }

@@ -1,15 +1,12 @@
-use std::convert::Infallible;
-
 use crate::domain::telegram::TelegramResponseError;
 use axum::{
-    body::{Bytes, Full},
-    http::Response,
     http::StatusCode,
-    response::IntoResponse,
+    response::{IntoResponse, Response},
     Json,
 };
 use reqwest::Error as RequestError;
 use serde_json::json;
+use std::convert::Infallible;
 use tower::BoxError;
 use validator::ValidationErrors;
 
@@ -39,10 +36,7 @@ impl From<RequestError> for AppError {
 }
 
 impl IntoResponse for AppError {
-    type Body = Full<Bytes>;
-    type BodyError = Infallible;
-
-    fn into_response(self) -> Response<Self::Body> {
+    fn into_response(self) -> Response {
         let (status, error_message) = match self {
             AppError::Validation(e) => (StatusCode::BAD_REQUEST, json!(e)),
             AppError::TelegramError(e) => (
@@ -62,7 +56,7 @@ impl IntoResponse for AppError {
     }
 }
 
-pub fn handle_error(error: BoxError) -> Result<impl IntoResponse, Infallible> {
+pub async fn handle_error(error: BoxError) -> Result<impl IntoResponse, Infallible> {
     if error.is::<tower::timeout::error::Elapsed>() {
         return Ok((
             StatusCode::REQUEST_TIMEOUT,

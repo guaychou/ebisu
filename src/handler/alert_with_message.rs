@@ -20,15 +20,6 @@ pub async fn alert_with_message(
     Extension(telegram): Extension<Telegram>,
 ) -> Result<Json<Value>, AppError> {
     req.validate()?;
-    let data = telegram
-        .send_alert(
-            req.service
-                .replace(|c: char| !c.is_alphanumeric() && !c.is_whitespace(), ""),
-            Some(
-                req.message
-                    .replace(|c: char| !c.is_alphanumeric() && !c.is_whitespace(), ""),
-            ),
-        )
-        .await?;
+    let data = telegram.send_alert(req.service, Some(req.message)).await?;
     Ok(json!(data).into())
 }

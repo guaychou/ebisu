@@ -28,7 +28,6 @@ pub struct ServerConfig {
     timeout: Duration,
 }
 
-
 #[derive(Deserialize, Getters)]
 pub struct Config {
     pub telegram: TelegramConfig,

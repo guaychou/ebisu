@@ -2,29 +2,39 @@ use crate::configuration::ServerConfig;
 use crate::domain::telegram::Telegram;
 use crate::error::handle_error;
 use crate::handler::{alert::alert, alert_with_message::alert_with_message};
-use axum::routing::BoxRoute;
+use axum::error_handling::HandleErrorLayer;
 use axum::AddExtensionLayer;
-use axum::{handler::post, Router};
-use tower::ServiceBuilder;
+use axum::{routing::post, Router};
+use tower::{
+    buffer::BufferLayer,
+    limit::{ConcurrencyLimitLayer, RateLimitLayer},
+    timeout::TimeoutLayer,
+    ServiceBuilder,
+};
 use tower_http::trace::TraceLayer;
 
-pub fn build(config: ServerConfig, telegram: Telegram) -> Router<BoxRoute> {
+pub fn build(config: ServerConfig, telegram: Telegram) -> Router {
     let middleware_stack = ServiceBuilder::new()
+        .layer(HandleErrorLayer::new(handle_error))
         .load_shed()
-        .buffer(*config.get_buffer())
-        .concurrency_limit(*config.get_concurrency_limit())
-        .timeout(*config.get_timeout())
-        .rate_limit(*config.get_rate_limit(), *config.get_limiter_timeout())
+        .layer(BufferLayer::new(*config.get_buffer()))
+        .layer(ConcurrencyLimitLayer::new(*config.get_concurrency_limit()))
+        .layer(TimeoutLayer::new(*config.get_timeout()))
+        .layer(RateLimitLayer::new(
+            *config.get_rate_limit(),
+            *config.get_limiter_timeout(),
+        ))
         .layer(TraceLayer::new_for_http())
-        .layer(AddExtensionLayer::new(telegram))
-        .into_inner();
+        .layer(AddExtensionLayer::new(telegram.clone()));
 
     Router::new()
-        .route("/api/v1/alert", post(alert))
-        .route("/api/v1/alertwithmessage", post(alert_with_message))
+        .nest(
+            "/api/v1",
+            Router::new()
+                .route("/alert", post(alert))
+                .route("/alertwithmessage", post(alert_with_message)),
+        )
         .layer(middleware_stack)
-        .handle_error(handle_error)
-        .boxed()
 }
 
 pub async fn shutdown_signal() {
@@ -41,5 +51,5 @@ pub async fn shutdown_signal() {
         _ = terminate() => {},
         _ = tokio::signal::ctrl_c() => {},
     }
-    tracing::info!("signal received, starting graceful shutdown")
+    tracing::info!("signal received, starting graceful shutdown");
 }

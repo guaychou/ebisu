@@ -1,13 +1,13 @@
 use tracing::subscriber::set_global_default;
 use tracing_log::LogTracer;
-use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
+use tracing_subscriber::{filter::EnvFilter, layer::SubscriberExt, Registry};
 use {env, figlet_rs::FIGfont, log::info};
 
 pub fn log_init() {
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "ebisu=info")
     }
-    let jaeger_address =  std::env::var("JAEGER_ADDRESS").unwrap_or( String::from("localhost:6831"));
+    let jaeger_address = std::env::var("JAEGER_ADDRESS").unwrap_or(String::from("localhost:6831"));
     let tracer = opentelemetry_jaeger::new_pipeline()
         .with_service_name(env!("CARGO_PKG_NAME"))
         .with_agent_endpoint(jaeger_address)

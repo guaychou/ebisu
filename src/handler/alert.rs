@@ -18,12 +18,6 @@ pub async fn alert(
     Extension(telegram): Extension<Telegram>,
 ) -> Result<Json<Value>, AppError> {
     req.validate()?;
-    let data = telegram
-        .send_alert(
-            req.service
-                .replace(|c: char| !c.is_alphanumeric() && !c.is_whitespace(), ""),
-            None,
-        )
-        .await?;
+    let data = telegram.send_alert(req.service, None).await?;
     Ok(json!(data).into())
 }
