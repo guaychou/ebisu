@@ -1,4 +1,4 @@
-FROM rust:1.55.0-bullseye as build-env
+FROM rust:1.57.0-bullseye as build-env
 WORKDIR /app
 ADD . /app
 RUN RUSTFLAGS="-C link-arg=-s" cargo build --release
