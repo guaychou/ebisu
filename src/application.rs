@@ -4,16 +4,41 @@ use crate::error::handle_error;
 use crate::handler::{alert::alert, alert_with_message::alert_with_message};
 use axum::error_handling::HandleErrorLayer;
 use axum::AddExtensionLayer;
-use axum::{routing::post, Router};
+use axum::{
+    http::{Request, Response},
+    routing::post,
+    Router,
+};
+use hyper::Body;
+use std::time::Duration;
 use tower::{
     buffer::BufferLayer,
     limit::{ConcurrencyLimitLayer, RateLimitLayer},
     timeout::TimeoutLayer,
     ServiceBuilder,
 };
-use tower_http::trace::TraceLayer;
 
+use tower_http::{trace::TraceLayer, ServiceBuilderExt};
+use tracing::Span;
 pub fn build(config: ServerConfig, telegram: Telegram) -> Router {
+    let http_trace = TraceLayer::new_for_http()
+        .make_span_with(|request: &Request<Body>| {
+            tracing::info_span!(
+                "Request",
+                status_code = tracing::field::Empty,
+                ms = tracing::field::Empty,
+                path = tracing::field::display(request.uri().path()),
+            )
+        })
+        .on_response(|response: &Response<_>, latency: Duration, span: &Span| {
+            span.record(
+                "status_code",
+                &tracing::field::display(response.status().as_u16()),
+            );
+            span.record("ms", &tracing::field::display(latency.as_millis()));
+            tracing::info!("response processed")
+        });
+
     let middleware_stack = ServiceBuilder::new()
         .layer(HandleErrorLayer::new(handle_error))
         .load_shed()
@@ -24,8 +49,9 @@ pub fn build(config: ServerConfig, telegram: Telegram) -> Router {
             *config.get_rate_limit(),
             *config.get_limiter_timeout(),
         ))
-        .layer(TraceLayer::new_for_http())
-        .layer(AddExtensionLayer::new(telegram.clone()));
+        .layer(http_trace)
+        .layer(AddExtensionLayer::new(telegram))
+        .compression();
 
     Router::new()
         .nest(

@@ -16,7 +16,10 @@ async fn main() {
         *config.server.get_port(),
     ));
     let server = axum::Server::bind(&addr)
-        .serve(application::build(config.server, telegram).into_make_service())
+        .serve(
+            application::build(config.server, telegram)
+                .into_make_service_with_connect_info::<SocketAddr, _>(),
+        )
         .with_graceful_shutdown(application::shutdown_signal());
     if let Err(err) = server.await {
         tracing::error!("server error: {:?}", err);

@@ -1,6 +1,6 @@
 [package]
 name = "ebisu"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 
 [lib]
@@ -21,14 +21,14 @@ validator = { version = "0.12", features = ["derive"] }
 tracing-subscriber = { version = "0.3" , features = ["env-filter"] } 
 tracing = "0.1"
 axum = "0.4"
-tower-http = { version = "0.2", features = ["trace"] }
+tower-http = { version = "0.2", features = ["full"] }
 tower = { version = "0.4", features = ["full"] }
 humantime-serde = "1.0.1"
 opentelemetry = { version = "0.16", default-features = false, features = ["rt-tokio"] }
 opentelemetry-jaeger = { version = "0.15", features = ["rt-tokio"] }
 tracing-opentelemetry = "0.16.0"
 tracing-log = "0.1.2"
-
+hyper = "0.14.15"
 [profile.release]
 opt-level = "z"
 lto = "fat"
