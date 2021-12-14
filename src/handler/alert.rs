@@ -1,5 +1,6 @@
 use crate::domain::telegram::Telegram;
 use crate::error::AppError;
+use crate::extractor::JsonExtractor;
 use axum::{extract::Extension, Json};
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -14,7 +15,7 @@ pub struct RequestBody {
 
 #[instrument(name = "alert_handler" skip(telegram))]
 pub async fn alert(
-    Json(req): Json<RequestBody>,
+    JsonExtractor(req): JsonExtractor<RequestBody>,
     Extension(telegram): Extension<Telegram>,
 ) -> Result<Json<Value>, AppError> {
     req.validate()?;

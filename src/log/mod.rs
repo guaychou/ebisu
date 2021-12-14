@@ -1,9 +1,12 @@
 use tracing::subscriber::set_global_default;
 use tracing_log::LogTracer;
-use tracing_subscriber::{filter::EnvFilter, layer::SubscriberExt, Registry};
+use tracing_subscriber::{filter::EnvFilter, layer::SubscriberExt, Registry, fmt::{format, time::LocalTime}};
 use {env, figlet_rs::FIGfont, log::info};
 
 pub fn log_init() {
+    let time_format = LocalTime::rfc_3339();
+    let tracing_format = format().with_timer(time_format);
+    let fmt_layer = tracing_subscriber::fmt::Layer::default().event_format(tracing_format);
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "ebisu=info")
     }
@@ -16,7 +19,7 @@ pub fn log_init() {
     let opentelemetry = tracing_opentelemetry::layer().with_tracer(tracer);
     let collector = Registry::default()
         .with(EnvFilter::from_default_env())
-        .with(tracing_subscriber::fmt::layer())
+        .with(fmt_layer)
         .with(opentelemetry);
     LogTracer::init().expect("Failed to set logger");
     set_global_default(collector).expect("Failed to set subscriber");

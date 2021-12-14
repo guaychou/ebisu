@@ -18,7 +18,7 @@ log = "0.4"
 serde_yaml = "0.8"
 structopt = "0.3.22"
 validator = { version = "0.12", features = ["derive"] }
-tracing-subscriber = { version = "0.3" , features = ["env-filter"] } 
+tracing-subscriber = { version = "0.3" , features = ["env-filter", "time", "fmt" , "std", "local-time"] } 
 tracing = "0.1"
 axum = "0.4"
 tower-http = { version = "0.2", features = ["full"] }
@@ -29,6 +29,8 @@ opentelemetry-jaeger = { version = "0.15", features = ["rt-tokio"] }
 tracing-opentelemetry = "0.16.0"
 tracing-log = "0.1.2"
 hyper = "0.14.15"
+time  = {version = "0.3", features = [] }
+
 [profile.release]
 opt-level = "z"
 lto = "fat"

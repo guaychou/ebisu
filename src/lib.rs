@@ -5,3 +5,4 @@ pub mod domain;
 pub mod error;
 pub mod handler;
 pub mod log;
+pub mod extractor;

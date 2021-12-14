@@ -5,11 +5,13 @@ use crate::handler::{alert::alert, alert_with_message::alert_with_message};
 use axum::error_handling::HandleErrorLayer;
 use axum::AddExtensionLayer;
 use axum::{
+    extract::ConnectInfo,
     http::{Request, Response},
     routing::post,
     Router,
 };
 use hyper::Body;
+use std::net::SocketAddr;
 use std::time::Duration;
 use tower::{
     buffer::BufferLayer,
@@ -28,6 +30,12 @@ pub fn build(config: ServerConfig, telegram: Telegram) -> Router {
                 status_code = tracing::field::Empty,
                 ms = tracing::field::Empty,
                 path = tracing::field::display(request.uri().path()),
+                ip = tracing::field::debug(
+                    request
+                        .extensions()
+                        .get::<ConnectInfo<SocketAddr>>()
+                        .unwrap()
+                )
             )
         })
         .on_response(|response: &Response<_>, latency: Duration, span: &Span| {
